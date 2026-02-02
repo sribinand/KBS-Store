@@ -7,7 +7,8 @@ const CategoryGrid = () => {
 
   if (error) {
     return (
-      <section id="categories" className="py-16 bg-background">
+      // Added bg-gray-100 here for consistency if loading fails
+      <section id="categories" className="py-16 bg-gray-100">
         <div className="container mx-auto px-4">
           <p className="text-center text-destructive">Failed to load categories</p>
         </div>
@@ -16,7 +17,8 @@ const CategoryGrid = () => {
   }
 
   return (
-    <section id="categories" className="py-16 bg-background">
+    // bg-gray-100 applies the gray color to the whole section
+    <section id="categories" className="py-16 bg-gray-100">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -33,7 +35,6 @@ const CategoryGrid = () => {
           {isLoading
             ? Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="flex flex-col items-center">
-                  {/* Skeleton changed to square */}
                   <Skeleton className="w-28 h-28 md:w-36 md:h-36 rounded-xl" />
                   <Skeleton className="w-20 h-4 mt-4" />
                 </div>
@@ -44,8 +45,8 @@ const CategoryGrid = () => {
                   to={`/category/${category.slug}`}
                   className="group flex flex-col items-center transition-all duration-300"
                 >
-                  {/* Square Image Container - Rounded corners used instead of full circle */}
-                  <div className="relative w-30 h-30 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-xl  overflow-hidden group-hover:shadow-md transition-all">
+                  {/* Square Image Container */}
+                  <div className="relative w-30 h-30 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-xl overflow-hidden group-hover:shadow-md transition-all">
                     <img
                       src={category.image_url || '/placeholder.svg'}
                       alt={category.name}
@@ -53,7 +54,7 @@ const CategoryGrid = () => {
                     />
                   </div>
 
-                  {/* Content - Text below */}
+                  {/* Content */}
                   <div className="mt-4 text-center">
                     <h3 className="text-sm md:text-base font-bold text-gray-800 group-hover:text-primary transition-colors uppercase tracking-tight">
                       {category.name}
