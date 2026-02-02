@@ -45,7 +45,7 @@ const CategoryGrid = () => {
                   className="group flex flex-col items-center transition-all duration-300"
                 >
                   {/* Square Image Container - Rounded corners used instead of full circle */}
-                  <div className="relative w-28 h-28 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group-hover:shadow-md transition-all">
+                  <div className="relative w-30 h-30 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-xl  overflow-hidden group-hover:shadow-md transition-all">
                     <img
                       src={category.image_url || '/placeholder.svg'}
                       alt={category.name}
