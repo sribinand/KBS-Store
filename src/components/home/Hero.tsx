@@ -1,18 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import heroImage from "@/assets/hero-spices.jpg";
 
 const Hero = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-hero text-primary-foreground">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
+     <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${heroImage})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
       </div>
 
       <div className="container relative mx-auto px-4 py-16 md:py-24">
@@ -20,7 +18,7 @@ const Hero = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gold/20 border border-gold/30 animate-fade-in">
             <Sparkles className="h-4 w-4 text-gold" />
-            <span className="text-sm font-medium text-gold">Since 1985 • Trusted Quality</span>
+            <span className="text-sm font-medium text-gold">Since 1970 • Trusted Quality</span>
           </div>
 
           {/* Heading */}
@@ -38,15 +36,20 @@ const Hero = () => {
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <Button asChild variant="gold" size="lg" className="group">
-              <Link to="#categories">
+              <a href="#categories">
                 Shop Now
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
+              </a>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-primary-foreground/30 text-primary-foreground hover:bg-emerald-light">
-              <Link to="/category/spices">
-                Explore Spices
-              </Link>
+            <Button asChild variant="outline" size="lg" className="
+  bg-transparent backdrop-blur-sm
+  border border-primary-foreground/30
+  text-primary-foreground
+  hover:bg-primary-foreground/10
+  transition-all duration-300 hover:scale-105
+"><Link to="/our-story">
+  Our Story
+</Link>
             </Button>
           </div>
 
@@ -61,7 +64,7 @@ const Hero = () => {
               <div className="text-sm text-primary-foreground/60">Happy Customers</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gold">40+</div>
+              <div className="text-2xl font-bold text-gold">50+</div>
               <div className="text-sm text-primary-foreground/60">Years of Trust</div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
+import logo from '@/assets/logo.png';
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -59,9 +60,16 @@ const Header = () => {
               </Button>
             )}
             <Link to="/" className="flex items-center gap-2">
-              <span className="font-display text-xl font-bold text-primary-foreground">
-                KBS Traders
-              </span>
+              {/* Logo Image and Text Container */}
+              <img 
+                src={logo} 
+                alt="KBS Traders - Since 1970" 
+                className="h-10 md:h-14 w-auto"
+              />
+              <h1 className="text-2xl md:text-3xl font-serif font-bold text-primary-foreground">
+                <span className="text-accent">KBS</span> Traders 
+              </h1>
+           
             </Link>
           </div>
 

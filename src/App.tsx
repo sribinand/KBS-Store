@@ -9,6 +9,7 @@ import CategoryPage from "./pages/CategoryPage";
 import SearchPage from "./pages/SearchPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
+import Ourstory from "./components/home/OurStory";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +25,7 @@ const App = () => (
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/admin" element={<AdminPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/Our-story" element={<Ourstory />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
