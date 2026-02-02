@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCategories } from '@/hooks/useProducts';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight } from 'lucide-react';
 
 const CategoryGrid = () => {
   const { data: categories, isLoading, error } = useCategories();
@@ -25,43 +24,39 @@ const CategoryGrid = () => {
             Shop by Category
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Explore our carefully curated collection of premium spices, nuts, and dry fruits
+            Explore our premium collection of dry fruits, spices, and more
           </p>
         </div>
 
-        {/* Category Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 stagger-children">
+        {/* Category Grid - 12 കാറ്റഗറികൾക്ക് അനുയോജ്യമായ രീതിയിൽ മാറ്റിയത് */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8 stagger-children">
           {isLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-[4/5] rounded-lg overflow-hidden">
-                  <Skeleton className="w-full h-full" />
+            ? Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <Skeleton className="w-24 h-24 md:w-32 md:h-32 rounded-full" />
+                  <Skeleton className="w-20 h-4 mt-4" />
                 </div>
               ))
-            : categories?.map((category) => (
+            : categories?.sort((a, b) => (a.display_order || 0) - (b.display_order || 0)).map((category) => (
                 <Link
                   key={category.id}
                   to={`/category/${category.slug}`}
-                  className="group relative aspect-[4/5] rounded-lg overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300"
+                  className="group flex flex-col items-center transition-all duration-300"
                 >
-                  {/* Image */}
-                  <img
-                    src={category.image_url || '/placeholder.svg'}
-                    alt={category.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  {/* Circle Image Container */}
+                  <div className="relative w-28 h-28 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-full shadow-sm border border-gray-100 overflow-hidden group-hover:shadow-md transition-all">
+                    <img
+                      src={category.image_url || '/placeholder.svg'}
+                      alt={category.name}
+                      className="w-3/4 h-3/4 object-contain transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
 
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
-
-                  {/* Content */}
-                  <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
-                    <h3 className="font-display text-xl md:text-2xl font-bold text-primary-foreground mb-2">
+                  {/* Content - Text below */}
+                  <div className="mt-4 text-center">
+                    <h3 className="text-sm md:text-base font-bold text-gray-800 group-hover:text-primary transition-colors uppercase tracking-tight">
                       {category.name}
                     </h3>
-                    <div className="flex items-center gap-2 text-gold text-sm font-medium opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-                      <span>Explore</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </div>
                   </div>
                 </Link>
               ))}
