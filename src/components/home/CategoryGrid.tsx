@@ -28,12 +28,13 @@ const CategoryGrid = () => {
           </p>
         </div>
 
-        {/* Category Grid - 12 കാറ്റഗറികൾക്ക് അനുയോജ്യമായ രീതിയിൽ മാറ്റിയത് */}
+        {/* Category Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8 stagger-children">
           {isLoading
             ? Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="flex flex-col items-center">
-                  <Skeleton className="w-24 h-24 md:w-32 md:h-32 rounded-full" />
+                  {/* Skeleton changed to square */}
+                  <Skeleton className="w-28 h-28 md:w-36 md:h-36 rounded-xl" />
                   <Skeleton className="w-20 h-4 mt-4" />
                 </div>
               ))
@@ -43,12 +44,12 @@ const CategoryGrid = () => {
                   to={`/category/${category.slug}`}
                   className="group flex flex-col items-center transition-all duration-300"
                 >
-                  {/* Circle Image Container */}
-                  <div className="relative w-28 h-28 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-full shadow-sm border border-gray-100 overflow-hidden group-hover:shadow-md transition-all">
+                  {/* Square Image Container - Rounded corners used instead of full circle */}
+                  <div className="relative w-28 h-28 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group-hover:shadow-md transition-all">
                     <img
                       src={category.image_url || '/placeholder.svg'}
                       alt={category.name}
-                      className="w-3/4 h-3/4 object-contain transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   </div>
 
