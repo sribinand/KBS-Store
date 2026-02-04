@@ -54,7 +54,7 @@ const Hero = () => {
           </div>
 
           {/* Trust Badges */}
-          <div className="flex flex-wrap gap-6 mt-10 pt-8 border-t border-primary-foreground/10 animate-fade-in" style={{ animationDelay: '400ms' }}>
+          {/* <div className="flex flex-wrap gap-6 mt-10 pt-8 border-t border-primary-foreground/10 animate-fade-in" style={{ animationDelay: '400ms' }}>
             <div className="text-center">
               <div className="text-2xl font-bold text-gold">100%</div>
               <div className="text-sm text-primary-foreground/60">Pure & Natural</div>
@@ -67,7 +67,7 @@ const Hero = () => {
               <div className="text-2xl font-bold text-gold">50+</div>
               <div className="text-sm text-primary-foreground/60">Years of Trust</div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
