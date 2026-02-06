@@ -29,6 +29,10 @@ import { Product } from '@/types/store';
 const ADMIN_PASSWORD = 'kbs2024'; // Simple password protection
 
 const AdminPage = () => {
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
+  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

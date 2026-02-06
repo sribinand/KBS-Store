@@ -23,14 +23,13 @@ const Hero = () => {
 
           {/* Heading */}
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-in" style={{ animationDelay: '100ms' }}>
-            Pure Spices &<br />
-            <span className="text-gold">Premium Dry Fruits</span>
+            Pure & Authentic Foods <br />
+            <span className="text-gold">From Trusted Sources to Your Table</span>
           </h1>
 
           {/* Description */}
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 leading-relaxed animate-fade-in" style={{ animationDelay: '200ms' }}>
-            Experience the authentic taste of tradition. Hand-selected spices and the finest 
-            dry fruits from around the world, delivered fresh to your doorstep.
+        Experience world-class quality with our carefully curated Dates, Nuts, Dry fruits, Spices, Chocolates and luxury gift hampers, delivered fresh to your doorstep.
           </p>
 
           {/* CTA Buttons */}
@@ -47,8 +46,8 @@ const Hero = () => {
   text-primary-foreground
   hover:bg-primary-foreground/10
   transition-all duration-300 hover:scale-105
-"><Link to="/our-story">
-  Our Story
+"><Link to="/about-us">
+  About Us
 </Link>
             </Button>
           </div>

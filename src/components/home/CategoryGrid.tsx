@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useCategories } from '@/hooks/useProducts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect } from 'react';
 
 const CategoryGrid = () => {
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
+  
   const { data: categories, isLoading, error } = useCategories();
 
   if (error) {

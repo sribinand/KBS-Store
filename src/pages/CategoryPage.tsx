@@ -5,8 +5,12 @@ import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect } from 'react';
+
 
 const CategoryPage = () => {
+    
+  
   const { slug } = useParams<{ slug: string }>();
   const { data: products, isLoading: productsLoading } = useProducts(slug);
   const { data: categories } = useCategories();

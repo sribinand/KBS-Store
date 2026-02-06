@@ -9,7 +9,10 @@ import CategoryPage from "./pages/CategoryPage";
 import SearchPage from "./pages/SearchPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
-import Ourstory from "./components/home/OurStory";
+import AboutUs from "./pages/AboutUs";
+
+// 1. ScrollToTop import cheyyuka
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -20,12 +23,15 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          
+          <ScrollToTop /> 
+          
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/admin" element={<AdminPage />} />
-          <Route path="/Our-story" element={<Ourstory />} />
+            <Route path="/about-us" element={<AboutUs />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

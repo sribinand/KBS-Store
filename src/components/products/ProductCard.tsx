@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Product, WeightOption } from '@/types/store';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
@@ -45,6 +45,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       setTimeout(() => setJustAdded(false), 1500);
     }
   };
+ 
 
   return (
     <div className="group bg-card rounded-lg overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300">
