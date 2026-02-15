@@ -16,6 +16,9 @@ export interface Product {
   price_250g: number | null;
   price_500g: number | null;
   price_1kg: number | null;
+  pcs: number | null;  
+  nos: number | null;   
+  pac: number | null;
   is_sold_out: boolean;
   is_featured: boolean;
   created_at: string;
@@ -23,7 +26,7 @@ export interface Product {
   category?: Category;
 }
 
-export type WeightOption = '250g' | '500g' | '1kg';
+export type WeightOption = '250g' | '500g' | '1kg' | 'pcs' | 'nos' | 'pac';
 
 export interface CartItem {
   product: Product;

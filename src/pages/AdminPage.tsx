@@ -37,10 +37,9 @@ const AdminPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  // --- Search and Filter States ---
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -56,11 +55,13 @@ const AdminPage = () => {
     price_250g: '',
     price_500g: '',
     price_1kg: '',
+    price_pcs: '',
+    price_nos: '',
+    price_pac: '',
     is_sold_out: false,
     is_featured: false,
   });
 
-  // --- Filter Logic ---
   const filteredProducts = products?.filter((product) => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
@@ -127,13 +128,16 @@ const AdminPage = () => {
       price_250g: '',
       price_500g: '',
       price_1kg: '',
+      price_pcs: '',
+      price_nos: '',
+      price_pac: '',
       is_sold_out: false,
       is_featured: false,
     });
     setEditingProduct(null);
   };
 
-  const openEditDialog = (product: Product) => {
+  const openEditDialog = (product: any) => {
     setEditingProduct(product);
     setFormData({
       title: product.title,
@@ -143,6 +147,9 @@ const AdminPage = () => {
       price_250g: product.price_250g?.toString() || '',
       price_500g: product.price_500g?.toString() || '',
       price_1kg: product.price_1kg?.toString() || '',
+      price_pcs: product.price_pcs?.toString() || '',
+      price_nos: product.price_nos?.toString() || '',
+      price_pac: product.price_pac?.toString() || '',
       is_sold_out: product.is_sold_out,
       is_featured: product.is_featured,
     });
@@ -159,6 +166,9 @@ const AdminPage = () => {
       price_250g: formData.price_250g ? parseFloat(formData.price_250g) : null,
       price_500g: formData.price_500g ? parseFloat(formData.price_500g) : null,
       price_1kg: formData.price_1kg ? parseFloat(formData.price_1kg) : null,
+      price_pcs: formData.price_pcs ? parseFloat(formData.price_pcs) : null,
+      price_nos: formData.price_nos ? parseFloat(formData.price_nos) : null,
+      price_pac: formData.price_pac ? parseFloat(formData.price_pac) : null,
       is_sold_out: formData.is_sold_out,
       is_featured: formData.is_featured,
     };
@@ -269,7 +279,6 @@ const AdminPage = () => {
           <h2 className="font-display text-2xl font-bold text-foreground">Products</h2>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search Input */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -280,7 +289,6 @@ const AdminPage = () => {
               />
             </div>
 
-            {/* Category Filter */}
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-full sm:w-[180px]">
                 <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -385,38 +393,74 @@ const AdminPage = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <Label htmlFor="price_250g">Price (250g)</Label>
-                      <Input
-                        id="price_250g"
-                        type="number"
-                        value={formData.price_250g}
-                        onChange={(e) => setFormData({ ...formData, price_250g: e.target.value })}
-                        placeholder="₹"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="price_500g">Price (500g)</Label>
-                      <Input
-                        id="price_500g"
-                        type="number"
-                        value={formData.price_500g}
-                        onChange={(e) => setFormData({ ...formData, price_500g: e.target.value })}
-                        placeholder="₹"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="price_1kg">Price (1kg)</Label>
-                      <Input
-                        id="price_1kg"
-                        type="number"
-                        value={formData.price_1kg}
-                        onChange={(e) => setFormData({ ...formData, price_1kg: e.target.value })}
-                        placeholder="₹"
-                      />
+                  {/* --- Price Units Section --- */}
+                  <div className="space-y-3">
+                    <Label className="text-primary font-bold">Pricing & Units</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <Label htmlFor="price_250g">250g</Label>
+                        <Input
+                          id="price_250g"
+                          type="number"
+                          value={formData.price_250g}
+                          onChange={(e) => setFormData({ ...formData, price_250g: e.target.value })}
+                          placeholder="₹"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="price_500g">500g</Label>
+                        <Input
+                          id="price_500g"
+                          type="number"
+                          value={formData.price_500g}
+                          onChange={(e) => setFormData({ ...formData, price_500g: e.target.value })}
+                          placeholder="₹"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="price_1kg">1kg</Label>
+                        <Input
+                          id="price_1kg"
+                          type="number"
+                          value={formData.price_1kg}
+                          onChange={(e) => setFormData({ ...formData, price_1kg: e.target.value })}
+                          placeholder="₹"
+                        />
+                      </div>
+                      {/* New Units Added Below */}
+                      <div>
+                        <Label htmlFor="price_pcs">Pcs</Label>
+                        <Input
+                          id="price_pcs"
+                          type="number"
+                          value={formData.price_pcs}
+                          onChange={(e) => setFormData({ ...formData, price_pcs: e.target.value })}
+                          placeholder="₹"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="price_nos">Nos</Label>
+                        <Input
+                          id="price_nos"
+                          type="number"
+                          value={formData.price_nos}
+                          onChange={(e) => setFormData({ ...formData, price_nos: e.target.value })}
+                          placeholder="₹"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="price_pac">Pac</Label>
+                        <Input
+                          id="price_pac"
+                          type="number"
+                          value={formData.price_pac}
+                          onChange={(e) => setFormData({ ...formData, price_pac: e.target.value })}
+                          placeholder="₹"
+                        />
+                      </div>
                     </div>
                   </div>
+
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       <Switch
@@ -444,7 +488,6 @@ const AdminPage = () => {
           </div>
         </div>
 
-        {/* Products Table */}
         <div className="bg-card rounded-lg shadow-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -452,13 +495,13 @@ const AdminPage = () => {
                 <tr>
                   <th className="text-left p-4 font-semibold text-foreground">Product</th>
                   <th className="text-left p-4 font-semibold text-foreground hidden md:table-cell">Category</th>
-                  <th className="text-left p-4 font-semibold text-foreground hidden sm:table-cell">Price (250g)</th>
+                  <th className="text-left p-4 font-semibold text-foreground hidden sm:table-cell">Pricing Info</th>
                   <th className="text-center p-4 font-semibold text-foreground">Status</th>
                   <th className="text-right p-4 font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filteredProducts?.map((product) => (
+                {filteredProducts?.map((product: any) => (
                   <tr key={product.id} className="hover:bg-muted/50 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
@@ -473,8 +516,13 @@ const AdminPage = () => {
                     <td className="p-4 text-muted-foreground hidden md:table-cell">
                       {product.category?.name || '-'}
                     </td>
-                    <td className="p-4 text-foreground hidden sm:table-cell">
-                      {product.price_250g ? `₹${product.price_250g}` : '-'}
+                    <td className="p-4 text-xs text-foreground hidden sm:table-cell">
+                      <div className="flex flex-wrap gap-1">
+                        {product.price_250g && <span className="bg-primary/10 px-1 rounded">250g: ₹{product.price_250g}</span>}
+                        {product.price_pcs && <span className="bg-gold/10 px-1 rounded">Pcs: ₹{product.price_pcs}</span>}
+                        {product.price_pac && <span className="bg-emerald/10 px-1 rounded">Pac: ₹{product.price_pac}</span>}
+                        {!product.price_250g && !product.price_pcs && !product.price_pac && '-'}
+                      </div>
                     </td>
                     <td className="p-4 text-center">
                       <button
