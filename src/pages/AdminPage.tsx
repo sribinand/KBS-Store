@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, LogOut, Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Lock, LogOut, Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,19 +26,20 @@ import { useCategories, useProducts } from '@/hooks/useProducts';
 import { toast } from 'sonner';
 import { Product } from '@/types/store';
 
-const ADMIN_PASSWORD = 'kbs2024'; // Simple password protection
+const ADMIN_PASSWORD = 'kbs2024';
 
 const AdminPage = () => {
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, []);
-  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  
+  const [isUploading, setIsUploading] = useState(false);
+
   const { data: categories } = useCategories();
   const { data: products, refetch: refetchProducts } = useProducts();
   const navigate = useNavigate();
@@ -59,6 +60,40 @@ const AdminPage = () => {
     const saved = sessionStorage.getItem('kbs_admin');
     if (saved === 'true') setIsAuthenticated(true);
   }, []);
+
+  // --- Image Upload Function ---
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      
+      // File name create ചെയ്യുക (സമയവും ഫയൽ പേരും ചേർത്ത്)
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}-${Date.now()}.${fileExt}`;
+      const filePath = `product-images/${fileName}`;
+
+      // Supabase Storage-ലേക്ക് അപ്‌ലോഡ് ചെയ്യുന്നു
+      const { error: uploadError } = await supabase.storage
+        .from('product-images') // നിങ്ങളുടെ Supabase Bucket പേര് 'product-images' എന്നാണെന്ന് ഉറപ്പുവരുത്തുക
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // അപ്‌ലോഡ് ചെയ്ത ഫയലിന്റെ Public URL എടുക്കുന്നു
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image_url: publicUrl });
+      toast.success('Image uploaded successfully!');
+    } catch (error: any) {
+      toast.error('Error uploading image: ' + error.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,7 +254,6 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Admin Header */}
       <header className="bg-primary text-primary-foreground py-4 sticky top-0 z-40">
         <div className="container mx-auto px-4 flex items-center justify-between">
           <h1 className="font-display text-xl font-bold">KBS Traders Admin</h1>
@@ -231,7 +265,6 @@ const AdminPage = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Add Product Button */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="font-display text-2xl font-bold text-foreground">Products</h2>
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -286,15 +319,46 @@ const AdminPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="image_url">Image URL</Label>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    placeholder="https://..."
-                  />
+
+                {/* --- Image Upload Section --- */}
+                <div className="space-y-2">
+                  <Label htmlFor="image">Product Image</Label>
+                  <div className="flex flex-col gap-4">
+                    {formData.image_url && (
+                      <div className="relative w-32 h-32 border rounded-md overflow-hidden bg-muted">
+                        <img 
+                          src={formData.image_url} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => document.getElementById('image')?.click()}
+                        disabled={isUploading}
+                        className="w-full"
+                      >
+                        {isUploading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4 mr-2" />
+                        )}
+                        {formData.image_url ? 'Change Image' : 'Upload Image'}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
+
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <Label htmlFor="price_250g">Price (250g)</Label>
@@ -345,7 +409,7 @@ const AdminPage = () => {
                     <Label htmlFor="is_featured">Featured</Label>
                   </div>
                 </div>
-                <Button type="submit" variant="gold" className="w-full">
+                <Button type="submit" variant="gold" className="w-full" disabled={isUploading}>
                   {editingProduct ? 'Update Product' : 'Add Product'}
                 </Button>
               </form>
