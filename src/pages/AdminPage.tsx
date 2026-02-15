@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, LogOut, Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2 } from 'lucide-react';
+import { Lock, LogOut, Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,6 +40,10 @@ const AdminPage = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  // --- Search and Filter States ---
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
   const { data: categories } = useCategories();
   const { data: products, refetch: refetchProducts } = useProducts();
   const navigate = useNavigate();
@@ -56,32 +60,34 @@ const AdminPage = () => {
     is_featured: false,
   });
 
+  // --- Filter Logic ---
+  const filteredProducts = products?.filter((product) => {
+    const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   useEffect(() => {
     const saved = sessionStorage.getItem('kbs_admin');
     if (saved === 'true') setIsAuthenticated(true);
   }, []);
 
-  // --- Image Upload Function ---
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
       setIsUploading(true);
-      
-      // File name create ചെയ്യുക (സമയവും ഫയൽ പേരും ചേർത്ത്)
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}-${Date.now()}.${fileExt}`;
       const filePath = `product-images/${fileName}`;
 
-      // Supabase Storage-ലേക്ക് അപ്‌ലോഡ് ചെയ്യുന്നു
       const { error: uploadError } = await supabase.storage
-        .from('product-images') // നിങ്ങളുടെ Supabase Bucket പേര് 'product-images' എന്നാണെന്ന് ഉറപ്പുവരുത്തുക
+        .from('product-images')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // അപ്‌ലോഡ് ചെയ്ത ഫയലിന്റെ Public URL എടുക്കുന്നു
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
         .getPublicUrl(filePath);
@@ -145,7 +151,6 @@ const AdminPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const productData = {
       title: formData.title,
       description: formData.description || null,
@@ -164,18 +169,15 @@ const AdminPage = () => {
           .from('products')
           .update(productData)
           .eq('id', editingProduct.id);
-        
         if (error) throw error;
         toast.success('Product updated!');
       } else {
         const { error } = await supabase
           .from('products')
           .insert([productData]);
-        
         if (error) throw error;
         toast.success('Product added!');
       }
-      
       setIsDialogOpen(false);
       resetForm();
       refetchProducts();
@@ -186,7 +188,6 @@ const AdminPage = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
-    
     try {
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
@@ -203,7 +204,6 @@ const AdminPage = () => {
         .from('products')
         .update({ is_sold_out: !product.is_sold_out })
         .eq('id', product.id);
-      
       if (error) throw error;
       toast.success(product.is_sold_out ? 'Product is now available' : 'Product marked as sold out');
       refetchProducts();
@@ -265,156 +265,183 @@ const AdminPage = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-8">
           <h2 className="font-display text-2xl font-bold text-foreground">Products</h2>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button variant="gold">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="font-display">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <Select
-                    value={formData.category_id}
-                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories?.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 w-full sm:w-[250px]"
+              />
+            </div>
 
-                {/* --- Image Upload Section --- */}
-                <div className="space-y-2">
-                  <Label htmlFor="image">Product Image</Label>
-                  <div className="flex flex-col gap-4">
-                    {formData.image_url && (
-                      <div className="relative w-32 h-32 border rounded-md overflow-hidden bg-muted">
-                        <img 
-                          src={formData.image_url} 
-                          alt="Preview" 
-                          className="w-full h-full object-cover" 
+            {/* Category Filter */}
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories?.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button variant="gold">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="font-display">
+                    {editingProduct ? 'Edit Product' : 'Add New Product'}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Category</Label>
+                    <Select
+                      value={formData.category_id}
+                      onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories?.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="image">Product Image</Label>
+                    <div className="flex flex-col gap-4">
+                      {formData.image_url && (
+                        <div className="relative w-32 h-32 border rounded-md overflow-hidden bg-muted">
+                          <img 
+                            src={formData.image_url} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="image"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          className="hidden"
                         />
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => document.getElementById('image')?.click()}
+                          disabled={isUploading}
+                          className="w-full"
+                        >
+                          {isUploading ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Upload className="h-4 w-4 mr-2" />
+                          )}
+                          {formData.image_url ? 'Change Image' : 'Upload Image'}
+                        </Button>
                       </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={() => document.getElementById('image')?.click()}
-                        disabled={isUploading}
-                        className="w-full"
-                      >
-                        {isUploading ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Upload className="h-4 w-4 mr-2" />
-                        )}
-                        {formData.image_url ? 'Change Image' : 'Upload Image'}
-                      </Button>
                     </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <Label htmlFor="price_250g">Price (250g)</Label>
-                    <Input
-                      id="price_250g"
-                      type="number"
-                      value={formData.price_250g}
-                      onChange={(e) => setFormData({ ...formData, price_250g: e.target.value })}
-                      placeholder="₹"
-                    />
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <Label htmlFor="price_250g">Price (250g)</Label>
+                      <Input
+                        id="price_250g"
+                        type="number"
+                        value={formData.price_250g}
+                        onChange={(e) => setFormData({ ...formData, price_250g: e.target.value })}
+                        placeholder="₹"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="price_500g">Price (500g)</Label>
+                      <Input
+                        id="price_500g"
+                        type="number"
+                        value={formData.price_500g}
+                        onChange={(e) => setFormData({ ...formData, price_500g: e.target.value })}
+                        placeholder="₹"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="price_1kg">Price (1kg)</Label>
+                      <Input
+                        id="price_1kg"
+                        type="number"
+                        value={formData.price_1kg}
+                        onChange={(e) => setFormData({ ...formData, price_1kg: e.target.value })}
+                        placeholder="₹"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="price_500g">Price (500g)</Label>
-                    <Input
-                      id="price_500g"
-                      type="number"
-                      value={formData.price_500g}
-                      onChange={(e) => setFormData({ ...formData, price_500g: e.target.value })}
-                      placeholder="₹"
-                    />
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="is_sold_out"
+                        checked={formData.is_sold_out}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_sold_out: checked })}
+                      />
+                      <Label htmlFor="is_sold_out">Sold Out</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="is_featured"
+                        checked={formData.is_featured}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                      />
+                      <Label htmlFor="is_featured">Featured</Label>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="price_1kg">Price (1kg)</Label>
-                    <Input
-                      id="price_1kg"
-                      type="number"
-                      value={formData.price_1kg}
-                      onChange={(e) => setFormData({ ...formData, price_1kg: e.target.value })}
-                      placeholder="₹"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="is_sold_out"
-                      checked={formData.is_sold_out}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_sold_out: checked })}
-                    />
-                    <Label htmlFor="is_sold_out">Sold Out</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="is_featured"
-                      checked={formData.is_featured}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-                    />
-                    <Label htmlFor="is_featured">Featured</Label>
-                  </div>
-                </div>
-                <Button type="submit" variant="gold" className="w-full" disabled={isUploading}>
-                  {editingProduct ? 'Update Product' : 'Add Product'}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <Button type="submit" variant="gold" className="w-full" disabled={isUploading}>
+                    {editingProduct ? 'Update Product' : 'Add Product'}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Products Table */}
@@ -431,7 +458,7 @@ const AdminPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {products?.map((product) => (
+                {filteredProducts?.map((product) => (
                   <tr key={product.id} className="hover:bg-muted/50 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
@@ -483,6 +510,13 @@ const AdminPage = () => {
                     </td>
                   </tr>
                 ))}
+                {filteredProducts?.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="p-8 text-center text-muted-foreground italic">
+                      No products found matching your search.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
